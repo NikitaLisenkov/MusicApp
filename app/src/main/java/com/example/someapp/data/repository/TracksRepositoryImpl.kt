@@ -2,11 +2,14 @@ package com.example.someapp.data.repository
 
 import com.example.someapp.data.network.DeezerApi
 import com.example.someapp.data.repository.Mapper.toDomainList
-import com.example.someapp.domain.model.Track
-import com.example.someapp.domain.repository.TracksRepository
+import com.example.someapp.domain.tracks.model.Track
+import com.example.someapp.domain.tracks.repository.TracksRepository
 import com.example.someapp.utils.runSuspendCatching
+import javax.inject.Inject
 
-class TracksRepositoryImpl(private val api: DeezerApi) : TracksRepository {
+class TracksRepositoryImpl @Inject constructor(
+    private val api: DeezerApi
+) : TracksRepository {
 
     override suspend fun getChartTracks(): List<Track> {
         return runSuspendCatching(

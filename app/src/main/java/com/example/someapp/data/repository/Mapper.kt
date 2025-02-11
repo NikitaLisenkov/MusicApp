@@ -3,9 +3,9 @@ package com.example.someapp.data.repository
 import com.example.someapp.data.network.model.AlbumResponse
 import com.example.someapp.data.network.model.ArtistResponse
 import com.example.someapp.data.network.model.TrackResponse
-import com.example.someapp.domain.model.Album
-import com.example.someapp.domain.model.Artist
-import com.example.someapp.domain.model.Track
+import com.example.someapp.domain.tracks.model.Album
+import com.example.someapp.domain.tracks.model.Artist
+import com.example.someapp.domain.tracks.model.Track
 
 object Mapper {
 

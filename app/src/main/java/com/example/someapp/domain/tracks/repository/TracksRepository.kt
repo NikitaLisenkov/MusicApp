@@ -1,7 +1,7 @@
-package com.example.someapp.domain.repository
+package com.example.someapp.domain.tracks.repository
 
 
-import com.example.someapp.domain.model.Track
+import com.example.someapp.domain.tracks.model.Track
 
 interface TracksRepository {
     suspend fun getChartTracks(): List<Track>

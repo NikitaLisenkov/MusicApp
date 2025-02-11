@@ -1,4 +1,4 @@
-package com.example.someapp.presentation
+package com.example.someapp.presentation.tracks
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,19 +39,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.someapp.di.ServiceLocator
-import com.example.someapp.domain.model.Track
+import com.example.someapp.domain.tracks.model.Track
+import com.example.someapp.presentation.getApplicationComponent
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TracksScreen() {
-    val viewModel: TracksViewModel = viewModel(
-        factory = TracksViewModelFactory(
-            getChartTracksUseCase = ServiceLocator.getChartTracksUseCase,
-            searchTracksUseCase = ServiceLocator.searchTracksUseCase
-        )
-    )
+    val component = getApplicationComponent()
+    val viewModel: TracksViewModel = viewModel(factory = component.getViewModelFactory())
     val state by viewModel.state.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
 

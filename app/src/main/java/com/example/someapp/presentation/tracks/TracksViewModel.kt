@@ -1,17 +1,18 @@
-package com.example.someapp.presentation
+package com.example.someapp.presentation.tracks
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.someapp.domain.usecase.GetChartTracksUseCase
-import com.example.someapp.domain.usecase.SearchTracksUseCase
+import com.example.someapp.domain.tracks.usecase.GetChartTracksUseCase
+import com.example.someapp.domain.tracks.usecase.SearchTracksUseCase
 import com.example.someapp.utils.runSuspendCatching
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class TracksViewModel(
+class TracksViewModel @Inject constructor(
     private val getChartTracksUseCase: GetChartTracksUseCase,
     private val searchTracksUseCase: SearchTracksUseCase
 ) : ViewModel() {

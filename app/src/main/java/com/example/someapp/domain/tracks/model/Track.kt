@@ -1,4 +1,4 @@
-package com.example.someapp.domain.model
+package com.example.someapp.domain.tracks.model
 
 data class Track(
     val id: Long,

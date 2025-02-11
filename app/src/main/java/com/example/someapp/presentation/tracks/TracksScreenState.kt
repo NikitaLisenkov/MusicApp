@@ -1,6 +1,6 @@
-package com.example.someapp.presentation
+package com.example.someapp.presentation.tracks
 
-import com.example.someapp.domain.model.Track
+import com.example.someapp.domain.tracks.model.Track
 
 sealed class TracksScreenState {
     data object Loading : TracksScreenState()

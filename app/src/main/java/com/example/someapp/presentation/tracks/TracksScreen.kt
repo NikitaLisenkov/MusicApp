@@ -74,7 +74,10 @@ fun TracksScreen() {
             contentAlignment = Alignment.Center
         ) {
             when (state) {
-                is TracksScreenState.Loading -> LoadingScreen()
+                is TracksScreenState.Loading -> {
+                    LoadingScreen()
+                }
+
                 is TracksScreenState.Content -> {
                     val tracks = (state as TracksScreenState.Content).tracks
                     TrackList(tracks)

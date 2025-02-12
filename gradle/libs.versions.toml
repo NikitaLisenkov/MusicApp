@@ -17,6 +17,7 @@ navigationCompose = "2.8.6"
 room = "2.6.1"
 ksp = "2.0.0-1.0.22"
 parcelize = "1.9.22"
+exoPlayer = "1.5.1"
 
 
 [libraries]
@@ -53,6 +54,11 @@ dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = 
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }
+
+# Exo Player
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "exoPlayer" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "exoPlayer" }
+androidx-media3-common = { module = "androidx.media3:media3-common", version.ref = "exoPlayer" }
 
 # Image Loading
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }

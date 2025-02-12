@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.example.someapp.di.app.AppComponent
-import com.example.someapp.di.DaggerAppComponent
+import com.example.someapp.di.app.DaggerAppComponent
 
 class MusicApplication : Application() {
 

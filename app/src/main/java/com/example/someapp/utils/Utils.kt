@@ -6,18 +6,13 @@ import kotlin.coroutines.cancellation.CancellationException
 
 suspend fun <T> runSuspendCatching(
     block: suspend () -> T,
-    onSuccess: suspend (T) -> Unit = {},
-    onError: suspend (Throwable) -> Unit = {}
-): T? {
+): Result<T> {
     return try {
-        val result = block()
-        onSuccess(result)
-        result
+        Result.success(block())
     } catch (e: CancellationException) {
         throw e
     } catch (e: Throwable) {
-        onError(e)
-        null
+        Result.failure(e)
     }
 }
 

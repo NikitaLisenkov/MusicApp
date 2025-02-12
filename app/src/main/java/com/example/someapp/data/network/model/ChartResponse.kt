@@ -7,7 +7,7 @@ data class ChartResponse(
 )
 
 data class TrackListResponse(
-    @SerializedName("data") val tracks: List<TrackResponse>
+    @SerializedName("data") val data: List<TrackResponse>
 )
 
 data class TrackResponse(

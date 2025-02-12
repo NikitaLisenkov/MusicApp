@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetChartTracksUseCase @Inject constructor(
     private val repo: TracksRepository
 ) {
-    suspend operator fun invoke(): List<Track> {
+    suspend operator fun invoke(): Result<List<Track>> {
         return repo.getChartTracks()
     }
 }

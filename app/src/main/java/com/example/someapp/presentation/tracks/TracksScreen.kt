@@ -1,6 +1,6 @@
 package com.example.someapp.presentation.tracks
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,10 +16,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,15 +38,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.someapp.domain.tracks.model.Track
+import com.example.someapp.presentation.base.ErrorScreen
+import com.example.someapp.presentation.base.LoadingScreen
 import com.example.someapp.presentation.getApplicationComponent
+import com.example.someapp.presentation.navigation.NavigationState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TracksScreen() {
+fun TracksScreen(navState: NavigationState) {
     val component = getApplicationComponent()
     val viewModel: TracksViewModel = viewModel(factory = component.getViewModelFactory())
-    val state by viewModel.state.collectAsState()
+    val screenState = viewModel.state.collectAsState()
+    val currentState = screenState.value
     var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
@@ -73,19 +75,20 @@ fun TracksScreen() {
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            when (state) {
+            when (currentState) {
                 is TracksScreenState.Loading -> {
                     LoadingScreen()
                 }
 
                 is TracksScreenState.Content -> {
-                    val tracks = (state as TracksScreenState.Content).tracks
-                    TrackList(tracks)
+                    val tracks = currentState.tracks
+                    TrackList(tracks, navState)
                 }
 
                 is TracksScreenState.Error -> {
-                    val message = (state as TracksScreenState.Error).message
-                    ErrorScreen(message = message, onRetryClick = { viewModel.fetchTracks() })
+                    ErrorScreen(
+                        message = currentState.message,
+                        onRetryClick = { viewModel.fetchTracks() })
                 }
             }
         }
@@ -119,21 +122,24 @@ fun SearchBar(query: String, onQueryChanged: (String) -> Unit) {
 
 
 @Composable
-fun TrackList(tracks: List<Track>) {
+fun TrackList(tracks: List<Track>, navState: NavigationState) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(tracks, key = { it.id }) { track ->
-            TrackCard(track)
+            TrackCard(track, navState)
         }
     }
 }
 
 
 @Composable
-fun TrackCard(track: Track) {
+fun TrackCard(track: Track, navState: NavigationState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable {
+                navState.navigateToPlayer(track.id.toString())
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -161,38 +167,6 @@ fun TrackCard(track: Track) {
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-        }
-    }
-}
-
-
-@Composable
-fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-
-@Composable
-fun ErrorScreen(message: String, onRetryClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = message,
-            color = MaterialTheme.colorScheme.error
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onRetryClick) {
-            Text("Retry")
         }
     }
 }

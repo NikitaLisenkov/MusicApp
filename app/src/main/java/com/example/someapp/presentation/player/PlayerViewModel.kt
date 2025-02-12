@@ -2,54 +2,79 @@ package com.example.someapp.presentation.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import com.example.someapp.domain.tracks.model.Track
+import com.example.someapp.domain.tracks.usecase.GetTrackByIdUseCase
+import com.example.someapp.utils.runSuspendCatching
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 class PlayerViewModel @Inject constructor(
-    private val playerManager: PlayerManager
+    private val playerManager: PlayerManager,
+    private val getTrackByIdUseCase: GetTrackByIdUseCase
 ) : ViewModel() {
 
     val playerState: StateFlow<PlayerState> get() = playerManager.playerState
     val currentPosition: StateFlow<Long> get() = playerManager.currentPosition
     val duration: StateFlow<Long> get() = playerManager.duration
 
-    private var updateJob: Job? = null
+    private val _screenState = MutableStateFlow<PlayerScreenState>(PlayerScreenState.Loading)
+    val screenState: StateFlow<PlayerScreenState> = _screenState.asStateFlow()
+
+    private fun loadTrack(track: Track) {
+        playerManager.setPlaylist(listOf(track), startIndex = 0)
+        _screenState.value = PlayerScreenState.Content(track)
+    }
+
+    fun loadTrackById(trackId: Long) {
+        viewModelScope.launch {
+            _screenState.value = PlayerScreenState.Loading
+
+            runSuspendCatching { getTrackByIdUseCase.invoke(trackId) }
+                .onSuccess { track ->
+                    _screenState.value = PlayerScreenState.Content(track.getOrThrow())
+                    loadTrack(track.getOrThrow())
+                }
+                .onFailure { error ->
+                    _screenState.value = PlayerScreenState.Error(error.message ?: "Ошибка загрузки")
+                }
+        }
+    }
+
+    fun setPlaylist(tracks: List<Track>, startIndex: Int = 0) {
+        playerManager.setPlaylist(tracks, startIndex)
+        _screenState.value = PlayerScreenState.Content(tracks[startIndex])
+    }
+
+    fun nextTrack() {
+        playerManager.nextTrack()
+    }
+
+    fun previousTrack() {
+        playerManager.previousTrack()
+    }
 
     fun play() {
-        playerManager.play("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3")
-        startUpdatingProgress()
+        playerManager.play()
     }
 
     fun pause() {
         playerManager.pause()
-        stopUpdatingProgress()
     }
 
     fun restart() {
         playerManager.restart()
-        startUpdatingProgress()
     }
 
-    fun startUpdatingProgress() {
-        updateJob?.cancel()
-        updateJob = viewModelScope.launch {
-            while (true) {
-                playerManager.updateProgress()
-                delay(1000)
-            }
-        }
-    }
-
-    private fun stopUpdatingProgress() {
-        updateJob?.cancel()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        playerManager.release()
-        updateJob?.cancel()
+    fun seekTo(positionMs: Long) {
+        playerManager.seekTo(positionMs)
     }
 }
+
+
+
+
+

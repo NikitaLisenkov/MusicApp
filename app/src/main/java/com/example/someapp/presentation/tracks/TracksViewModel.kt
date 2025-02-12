@@ -31,16 +31,14 @@ class TracksViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = TracksScreenState.Loading
 
-            runSuspendCatching(
-                block = { getChartTracksUseCase.invoke() },
-                onSuccess = { tracks ->
-                    _state.update { TracksScreenState.Content(tracks) }
+            runSuspendCatching(getChartTracksUseCase::invoke)
+                .onSuccess { tracks ->
+                    _state.update { TracksScreenState.Content(tracks.getOrThrow()) }
                     currentQuery = null
-                },
-                onError = { error ->
+                }
+                .onFailure { error ->
                     _state.update { TracksScreenState.Error(error.message ?: "Ошибка загрузки") }
                 }
-            )
         }
     }
 
@@ -54,15 +52,14 @@ class TracksViewModel @Inject constructor(
         currentQuery = query
         viewModelScope.launch {
             _state.value = TracksScreenState.Loading
-            runSuspendCatching(
-                block = { searchTracksUseCase.invoke(query) },
-                onSuccess = { tracks ->
-                    _state.value = TracksScreenState.Content(tracks)
-                },
-                onError = { error ->
+
+            runSuspendCatching { searchTracksUseCase.invoke(query) }
+                .onSuccess { tracks ->
+                    _state.value = TracksScreenState.Content(tracks.getOrThrow())
+                }
+                .onFailure { error ->
                     _state.value = TracksScreenState.Error(error.message ?: "Ошибка поиска")
                 }
-            )
         }
     }
 }

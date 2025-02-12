@@ -1,9 +1,8 @@
-package com.example.someapp.presentation
+package com.example.someapp.presentation.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.someapp.presentation.player.PlayerScreen
 import com.example.someapp.presentation.theme.SomeAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -11,9 +10,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             SomeAppTheme {
-//                TracksScreen()
-                PlayerScreen()
-                }
+                MusicMainContainer()
             }
         }
     }
+}

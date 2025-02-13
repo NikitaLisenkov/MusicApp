@@ -49,11 +49,9 @@ class PlayerManager @Inject constructor(context: Context) {
             }
 
             override fun onPlaybackStateChanged(state: Int) {
-                if (state == ExoPlayer.STATE_BUFFERING) {
-                    _playerState.value = PlayerState.Buffering
-                }
-                if (state == ExoPlayer.STATE_ENDED) {
-                    nextTrack()
+                when (state) {
+                    ExoPlayer.STATE_BUFFERING -> _playerState.value = PlayerState.Buffering
+                    ExoPlayer.STATE_ENDED -> nextTrack()
                 }
             }
 
@@ -86,6 +84,8 @@ class PlayerManager @Inject constructor(context: Context) {
             player.setMediaItem(mediaItem)
             player.prepare()
             player.playWhenReady = true
+        } else {
+            _playerState.value = PlayerState.Paused
         }
     }
 
@@ -117,11 +117,11 @@ class PlayerManager @Inject constructor(context: Context) {
     }
 
     fun previousTrack() {
-        if (player.currentPosition > RESTART_THRESHOLD_MS) {
-            restart()
-        } else if (_currentTrackIndex.value > 0) {
+        if (player.currentPosition < RESTART_THRESHOLD_MS && _currentTrackIndex.value > 0) {
             _currentTrackIndex.value -= 1
             playCurrentTrack()
+        } else {
+            restart()
         }
     }
 
@@ -154,6 +154,7 @@ class PlayerManager @Inject constructor(context: Context) {
         private const val RESTART_THRESHOLD_MS = 3000L
     }
 }
+
 
 
 

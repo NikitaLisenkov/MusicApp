@@ -1,8 +1,7 @@
-package com.example.someapp.presentation.player
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,27 +29,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.someapp.R
 import com.example.someapp.domain.tracks.model.Track
 import com.example.someapp.presentation.base.ErrorScreen
 import com.example.someapp.presentation.base.LoadingScreen
 import com.example.someapp.presentation.getApplicationComponent
-import com.example.someapp.presentation.navigation.NavigationState
-import com.example.someapp.presentation.navigation.Screen
+import com.example.someapp.presentation.player.PlayerScreenState
+import com.example.someapp.presentation.player.PlayerState
+import com.example.someapp.presentation.player.PlayerViewModel
 import com.example.someapp.utils.formatTime
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlayerScreen(trackId: Long, navState: NavigationState) {
-
+fun PlayerScreen(
+    trackId: Long,
+    paddingValues: PaddingValues,
+    onBackPressed: () -> Unit
+) {
     val component = getApplicationComponent()
     val viewModel: PlayerViewModel = viewModel(factory = component.getViewModelFactory())
-    val screenState = viewModel.screenState.collectAsStateWithLifecycle()
-    val currentState = screenState.value
+    val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(trackId) {
         viewModel.loadTrackById(trackId)
@@ -59,30 +62,29 @@ fun PlayerScreen(trackId: Long, navState: NavigationState) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Now Playing") },
+                title = {
+                    Text(text = stringResource(id = R.string.now_playing))
+                },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        if (!navState.navController.popBackStack()) {
-                            navState.navController.navigate(Screen.Tracks.route)
-                        }
-                    }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    IconButton(onClick = onBackPressed) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
                     }
                 }
             )
         }
-    ) { paddingValues ->
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            when (currentState) {
+            when (val currentState = screenState) {
                 is PlayerScreenState.Loading -> LoadingScreen()
-
                 is PlayerScreenState.Content -> AudioExoPlayer(viewModel, currentState.track)
-
                 is PlayerScreenState.Error -> ErrorScreen(
                     message = currentState.message,
                     onRetryClick = { viewModel.loadTrackById(trackId) }
@@ -107,7 +109,7 @@ fun AudioExoPlayer(viewModel: PlayerViewModel, track: Track) {
     ) {
         AsyncImage(
             model = track.album.coverUrl,
-            contentDescription = "Album Cover",
+            contentDescription = null,
             modifier = Modifier
                 .size(200.dp)
                 .clip(RoundedCornerShape(16.dp))
@@ -115,22 +117,27 @@ fun AudioExoPlayer(viewModel: PlayerViewModel, track: Track) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(track.title, style = MaterialTheme.typography.headlineMedium)
-        Text(track.artist.name, style = MaterialTheme.typography.bodyLarge)
+        Text(text = track.title, style = MaterialTheme.typography.headlineMedium)
+        Text(text = track.artist.name, style = MaterialTheme.typography.bodyLarge)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (playerState) {
-            is PlayerState.Playing -> Text("Playing")
-            is PlayerState.Paused -> Text("Paused")
-            is PlayerState.Buffering -> Text("Buffering...")
-        }
+        Text(
+            text = when (playerState) {
+                is PlayerState.Playing -> stringResource(id = R.string.playing)
+                is PlayerState.Paused -> stringResource(id = R.string.paused)
+                is PlayerState.Buffering -> stringResource(id = R.string.buffering)
+            }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.Center) {
             IconButton(onClick = { viewModel.previousTrack() }) {
-                Icon(Icons.Default.SkipPrevious, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.SkipPrevious,
+                    contentDescription = null
+                )
             }
 
             IconButton(onClick = {
@@ -147,7 +154,10 @@ fun AudioExoPlayer(viewModel: PlayerViewModel, track: Track) {
             }
 
             IconButton(onClick = { viewModel.nextTrack() }) {
-                Icon(Icons.Default.SkipNext, contentDescription = null)
+                Icon(
+                    imageVector = Icons.Default.SkipNext,
+                    contentDescription = null
+                )
             }
         }
 
@@ -160,15 +170,14 @@ fun AudioExoPlayer(viewModel: PlayerViewModel, track: Track) {
             }
         )
 
-        val currentPositionFormatted = formatTime(currentPosition)
+        val currentFormatted = formatTime(currentPosition)
         val durationFormatted = formatTime(duration)
-        Text("Progress: $currentPositionFormatted / $durationFormatted")
+        Text(
+            text = stringResource(
+                id = R.string.progress_format,
+                currentFormatted,
+                durationFormatted
+            )
+        )
     }
 }
-
-
-
-
-
-
-

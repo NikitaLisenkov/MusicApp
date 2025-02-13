@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">SomeApp</string>
-    <string name="navigation_item_downloaded">Загруженные</string>
-    <string name="navigation_item_tracks">Треки</string>
+    <string name="navigation_item_tracks">Tracks</string>
+    <string name="navigation_item_downloaded">Downloaded</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="playing">Playing</string>
+    <string name="paused">Paused</string>
+    <string name="buffering">Buffering...</string>
+    <string name="progress_format">Progress: %1$s / %2$s</string>
+    <string name="music_title">Music</string>
+    <string name="search_tracks_placeholder">Search tracks...</string>
+    <string name="downloaded_track">Downloaded Track %1$d</string>
 </resources>

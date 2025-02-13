@@ -6,11 +6,12 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
-class NavigationState(val navController: NavHostController) {
+
+class NavigationState(val navHostController: NavHostController) {
 
     fun navigateTo(route: String) {
-        navController.navigate(route) {
-            popUpTo(navController.graph.findStartDestination().id) {
+        navHostController.navigate(route) {
+            popUpTo(navHostController.graph.findStartDestination().id) {
                 saveState = true
             }
             launchSingleTop = true
@@ -18,16 +19,18 @@ class NavigationState(val navController: NavHostController) {
         }
     }
 
-    fun navigateToPlayer(trackId: String) {
-        navController.navigate(Screen.Player.createRoute(trackId))
+    fun navigateToPlayer(trackId: Long) {
+        navHostController.navigate(Screen.Player.createRoute(trackId))
     }
 }
 
+
 @Composable
 fun rememberNavState(
-    navController: NavHostController = rememberNavController()
+    navHostController: NavHostController = rememberNavController()
 ): NavigationState {
-    return remember(navController) { NavigationState(navController) }
+    return remember(navHostController) { NavigationState(navHostController) }
 }
+
 
 

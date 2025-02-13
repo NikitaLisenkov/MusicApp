@@ -10,26 +10,20 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun BottomNavigationBar(navState: NavigationState) {
-
     val items = listOf(
         NavigationItem.Tracks,
         NavigationItem.Downloaded
     )
     NavigationBar {
         val currentRoute =
-            navState.navController.currentBackStackEntryAsState().value?.destination?.route
+            navState.navHostController.currentBackStackEntryAsState().value?.destination?.route
 
         items.forEach { item ->
             val selected = currentRoute == item.screen.route
 
             NavigationBarItem(
-                icon = {
-                    Icon(
-                        item.icon,
-                        contentDescription = null
-                    )
-                },
-                label = { Text(stringResource(id = item.titleResId)) },
+                icon = { Icon(item.icon, contentDescription = null) },
+                label = { Text(text = stringResource(id = item.titleRes)) },
                 selected = selected,
                 onClick = {
                     navState.navigateTo(item.screen.route)
@@ -38,5 +32,6 @@ fun BottomNavigationBar(navState: NavigationState) {
         }
     }
 }
+
 
 

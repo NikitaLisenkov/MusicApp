@@ -3,6 +3,7 @@ package com.example.someapp.presentation.tracks
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,33 +31,37 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.someapp.R
 import com.example.someapp.domain.tracks.model.Track
 import com.example.someapp.presentation.base.ErrorScreen
 import com.example.someapp.presentation.base.LoadingScreen
 import com.example.someapp.presentation.getApplicationComponent
-import com.example.someapp.presentation.navigation.NavigationState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TracksScreen(navState: NavigationState) {
+fun TracksScreen(
+    onTrackClick: (Long) -> Unit,
+    paddingValues: PaddingValues
+) {
     val component = getApplicationComponent()
     val viewModel: TracksViewModel = viewModel(factory = component.getViewModelFactory())
     val screenState = viewModel.state.collectAsState()
-    val currentState = screenState.value
-    var searchQuery by remember { mutableStateOf("") }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Music") },
+                title = { Text(text = stringResource(id = R.string.music_title)) },
                 actions = {
                     SearchBar(
                         query = searchQuery,
@@ -68,33 +73,32 @@ fun TracksScreen(navState: NavigationState) {
                 }
             )
         }
-    ) { padding ->
+    ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            when (currentState) {
-                is TracksScreenState.Loading -> {
-                    LoadingScreen()
-                }
-
+            when (val currentState = screenState.value) {
+                is TracksScreenState.Loading -> LoadingScreen()
                 is TracksScreenState.Content -> {
-                    val tracks = currentState.tracks
-                    TrackList(tracks, navState)
+                    TrackList(
+                        tracks = currentState.tracks,
+                        onTrackClick = onTrackClick
+                    )
                 }
 
                 is TracksScreenState.Error -> {
                     ErrorScreen(
                         message = currentState.message,
-                        onRetryClick = { viewModel.fetchTracks() })
+                        onRetryClick = { viewModel.fetchTracks() }
+                    )
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun SearchBar(query: String, onQueryChanged: (String) -> Unit) {
@@ -106,7 +110,7 @@ fun SearchBar(query: String, onQueryChanged: (String) -> Unit) {
             text = it
             onQueryChanged(it)
         },
-        placeholder = { Text("Search tracks...") },
+        placeholder = { Text(text = stringResource(id = R.string.search_tracks_placeholder)) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
@@ -120,26 +124,25 @@ fun SearchBar(query: String, onQueryChanged: (String) -> Unit) {
     )
 }
 
-
 @Composable
-fun TrackList(tracks: List<Track>, navState: NavigationState) {
+fun TrackList(tracks: List<Track>, onTrackClick: (Long) -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(tracks, key = { it.id }) { track ->
-            TrackCard(track, navState)
+            TrackCard(
+                track = track,
+                onClick = { onTrackClick(track.id) }
+            )
         }
     }
 }
 
-
 @Composable
-fun TrackCard(track: Track, navState: NavigationState) {
+fun TrackCard(track: Track, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable {
-                navState.navigateToPlayer(track.id.toString())
-            },
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -170,3 +173,5 @@ fun TrackCard(track: Track, navState: NavigationState) {
         }
     }
 }
+
+

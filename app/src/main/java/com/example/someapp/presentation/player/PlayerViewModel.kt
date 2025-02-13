@@ -24,19 +24,22 @@ class PlayerViewModel @Inject constructor(
     private val _screenState = MutableStateFlow<PlayerScreenState>(PlayerScreenState.Loading)
     val screenState: StateFlow<PlayerScreenState> = _screenState.asStateFlow()
 
-    private fun loadTrack(track: Track) {
-        playerManager.setPlaylist(listOf(track), startIndex = 0)
-        _screenState.value = PlayerScreenState.Content(track)
-    }
-
     fun loadTrackById(trackId: Long) {
         viewModelScope.launch {
+            val currentTrack = playerManager.currentTrack.value
+            if (currentTrack != null && currentTrack.id == trackId) {
+                _screenState.value = PlayerScreenState.Content(currentTrack)
+                return@launch
+            }
+
             _screenState.value = PlayerScreenState.Loading
 
             runSuspendCatching { getTrackByIdUseCase.invoke(trackId) }
-                .onSuccess { track ->
-                    _screenState.value = PlayerScreenState.Content(track.getOrThrow())
-                    loadTrack(track.getOrThrow())
+                .onSuccess { result ->
+                    val track = result.getOrThrow()
+                    _screenState.value = PlayerScreenState.Content(track)
+                    // Для переключения между треками желательно передавать полноценный плейлист.
+                    playerManager.setPlaylist(listOf(track), startIndex = 0)
                 }
                 .onFailure { error ->
                     _screenState.value = PlayerScreenState.Error(error.message ?: "Ошибка загрузки")
@@ -73,6 +76,7 @@ class PlayerViewModel @Inject constructor(
         playerManager.seekTo(positionMs)
     }
 }
+
 
 
 

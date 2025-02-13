@@ -1,43 +1,44 @@
 package com.example.someapp.presentation.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.someapp.presentation.downloaded_tracks.DownloadedTracksScreen
-import com.example.someapp.presentation.player.PlayerScreen
-import com.example.someapp.presentation.tracks.TracksScreen
+
 
 @Composable
 fun AppNavGraph(
-    navState: NavigationState,
-    paddingValues: PaddingValues
+    navHostController: NavHostController,
+    tracksScreenContent: @Composable () -> Unit,
+    downloadedTracksScreenContent: @Composable () -> Unit,
+    playerScreenContent: @Composable (Long) -> Unit
 ) {
     NavHost(
-        navController = navState.navController,
-        startDestination = Screen.Tracks.route,
-        modifier = Modifier.padding(paddingValues)
+        navController = navHostController,
+        startDestination = Screen.Tracks.route
     ) {
-        composable(Screen.Downloaded.route) {
-            DownloadedTracksScreen()
-        }
+
         composable(Screen.Tracks.route) {
-            TracksScreen(navState)
-        }
-        composable(
-            route = Screen.Player.route,
-            arguments = listOf(navArgument("trackId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val trackId = backStackEntry.arguments?.getString("trackId")?.toLongOrNull() ?: 0L
-            PlayerScreen(trackId, navState)
+            tracksScreenContent()
         }
 
+        composable(Screen.Downloaded.route) {
+            downloadedTracksScreenContent()
+        }
+
+        composable(
+            route = Screen.Player.route,
+            arguments = listOf(navArgument(Screen.KEY_TRACK_ID) { type = NavType.LongType })
+        ) { backStackEntry ->
+            val trackId = backStackEntry.arguments?.getLong(Screen.KEY_TRACK_ID) ?: 0L
+            playerScreenContent(trackId)
+        }
     }
 }
+
+
 
 
 

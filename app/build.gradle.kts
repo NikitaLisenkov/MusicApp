@@ -7,12 +7,12 @@ plugins {
 }
 
 android {
-    namespace = "com.example.someapp"
+    namespace = "com.example.musicapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.someapp"
-        minSdk = 24
+        applicationId = "com.example.musicapp"
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -33,17 +33,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_16
+        targetCompatibility = JavaVersion.VERSION_16
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "16"
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
@@ -73,11 +70,6 @@ dependencies {
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 
-    // Database (Room)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
     // Networking
     implementation(libs.gson)
     implementation(libs.converter.gson)
@@ -93,6 +85,9 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.common)
+
+    // MediaSessionCompat
+    implementation(libs.androidx.media)
 
     // Testing
     testImplementation(libs.junit)

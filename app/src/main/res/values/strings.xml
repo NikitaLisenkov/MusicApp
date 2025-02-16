@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SomeApp</string>
+    <string name="app_name">MusicApp</string>
     <string name="navigation_item_tracks">Tracks</string>
     <string name="navigation_item_downloaded">Downloaded</string>
     <string name="now_playing">Now Playing</string>
@@ -10,4 +10,11 @@
     <string name="music_title">Music</string>
     <string name="search_tracks_placeholder">Search tracks...</string>
     <string name="downloaded_track">Downloaded Track %1$d</string>
+
+    <string name="notification_content_text">Track title - Artist</string>
+    <string name="notification_previous">Previous</string>
+    <string name="notification_pause">Pause</string>
+    <string name="notification_play">Play</string>
+    <string name="notification_next">Next</string>
+    <string name="channel_name">Music Playback</string>
 </resources>
